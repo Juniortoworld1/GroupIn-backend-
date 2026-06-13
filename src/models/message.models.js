@@ -33,16 +33,11 @@ const MessageSchema = new mongoose.Schema({
   },
   
   // Message delivery statuses (Like WhatsApp's single tick, double tick, blue tick)
-  status: {
+  Status: {
     type: String,
     enum: ['sent', 'delivered', 'read'],
     default: 'sent'
   },
-  
-  // Optional: timestamps for exactly when a message was read
-  readAt: {
-    type: Date
-  }
 }, { timestamps: true });
 
 // Indexing sender and receiver speeds up fetching chat histories drastically

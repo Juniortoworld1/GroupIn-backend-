@@ -28,6 +28,7 @@ const login = asyncHandler(async (req , res) =>{
     const isMatch = await isUser.isPasswordCorrect(password)
 
     if(!isMatch) throw new ApiError(400 , "Incorrect Credientails") ;
+    console.log(isUser._id)
 
     const {refreshTokens , accessTokens} = await generateAccessRefreshToken(isUser._id) ; 
 

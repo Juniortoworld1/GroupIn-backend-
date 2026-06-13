@@ -18,6 +18,7 @@ const generateAccessRefreshToken = async (userId)=>{
         return {accessTokens:accessToken , refreshTokens: refreshToken}
 
     }catch(error){
+        console.error("DEBUGGING ERROR:", error);
         throw new ApiError(500 , "token not injucted")
     }
 }

@@ -5,6 +5,9 @@ import { upload } from "../middleware/multer.middleware.js";
 import { login } from "../controllers/login.controllers.js";
 import { logOut } from "../controllers/logout.controller.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
+import { acceptFriendRequest, rejectFriendRequest, sendFriendRequest } from "../controllers/friendRequest.controller.js";
+import { message, readMessageSendByFriend, readMessageSendUs } from "../controllers/message.controller.js";
+
 
 const route = Router() ; 
 
@@ -30,6 +33,43 @@ route.route("/login").post(
 route.route("/logout").post(
     verifyJWT , 
     logOut
+)
+
+
+route.route("/friendrequest/send").post(
+    verifyJWT , 
+    sendFriendRequest
+) 
+
+route.route("/friendrequest/receive").post(
+    verifyJWT, 
+    acceptFriendRequest
+)
+
+route.route("/friendrequest/delete").post(
+    verifyJWT , 
+    rejectFriendRequest
+)
+
+route.route("/message").post(
+    upload.fields([
+        {
+            name:"messagePic", 
+            maxCount : 1
+        }
+    ]) , 
+    verifyJWT, 
+    message
+)
+
+route.route("/message/incomming").post(
+    verifyJWT , 
+    readMessageSendByFriend
+)
+
+route.route("/message/outgoing").post(
+    verifyJWT , 
+    readMessageSendUs
 )
 
 export default route
