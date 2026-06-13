@@ -1,0 +1,36 @@
+{
+  "name": "groupin",
+  "version": "1.0.0",
+  "description": "its a social media backend system ",
+  "homepage": "https://github.com/Juniortoworld1/GroupIn-backend-#readme",
+  "bugs": {
+    "url": "https://github.com/Juniortoworld1/GroupIn-backend-/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Juniortoworld1/GroupIn-backend-.git"
+  },
+  "license": "ISC",
+  "author": "Soyeb akhtar",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon -r dotenv/config src/index.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^2.10.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "fs": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.3.0",
+    "mongoose": "^9.7.0",
+    "multer": "^2.1.1"
+  }
+}
