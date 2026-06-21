@@ -3,10 +3,11 @@ import { Router } from "express";
 import { registerUser } from "../controllers/register.controllers.js";
 import { upload } from "../middleware/multer.middleware.js";
 import { login } from "../controllers/login.controllers.js";
-import { logOut } from "../controllers/logout.controller.js";
+import { logOut } from "../controllers/logout.controlles.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 import { acceptFriendRequest, rejectFriendRequest, sendFriendRequest } from "../controllers/friendRequest.controller.js";
 import { message, readMessageSendByFriend, readMessageSendUs } from "../controllers/message.controller.js";
+import { post } from "../controllers/post.controllers.js";
 
 
 const route = Router() ; 
@@ -70,6 +71,17 @@ route.route("/message/incomming").post(
 route.route("/message/outgoing").post(
     verifyJWT , 
     readMessageSendUs
+)
+
+route.route("/post").post(
+    verifyJWT , 
+    upload.fields([
+        {
+            name:"postImg", 
+            maxCount : 3
+        }
+    ]) , 
+    post
 )
 
 export default route

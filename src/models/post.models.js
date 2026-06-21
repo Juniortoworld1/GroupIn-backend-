@@ -5,7 +5,7 @@ const PostSchema = new mongoose.Schema({
   text: { type: String, default: "" },
   
   // Media configuration
-  mediaUrl: { type: String, default: "" }, // URL hosting the photo or video file
+  mediaUrl: [{ type: String, default: "" }], // URL hosting the photo or video file
   mediaType: { 
     type: String, 
     enum: ['none', 'photo', 'video'], 
@@ -23,6 +23,7 @@ const PostSchema = new mongoose.Schema({
   // The total likes = likes.length
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   
+  Comment :[{type:mongoose.Schema.Types.ObjectId , ref:"Comment"}] ,
   // Track shares by saving references to users who reshared it
   shares: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   
