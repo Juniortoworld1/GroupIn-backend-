@@ -6,11 +6,11 @@ const PostSchema = new mongoose.Schema({
   
   // Media configuration
   mediaUrl: [{ type: String, default: "" }], // URL hosting the photo or video file
-  mediaType: { 
+  mediaType: [{ 
     type: String, 
     enum: ['none', 'photo', 'video'], 
     default: 'none' 
-  },
+  }],
   
   // Privacy control requested
   privacy: { 
