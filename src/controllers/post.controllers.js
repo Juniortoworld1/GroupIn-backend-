@@ -71,6 +71,10 @@ const post = asyncHandler(async (req, res) => {
             privacy: privacy
         });
 
+        await User.findByIdAndUpdate(verifyUser, {
+                $push: { post: uploadPost._id }
+            });
+
         return res.status(201).json({
             success: true,
             message: "Post created successfully",
@@ -81,5 +85,17 @@ const post = asyncHandler(async (req, res) => {
         throw new ApiError(e.statusCode || 500, e.message || "Internal Server Error");
     }
 });
+
+
+const likes = asyncHandler(async (req, res)=>{
+    const userId = req.user._id
+    const userIdCheck = User.findById(userId)
+    if(!userId && !userIdCheck){
+        throw new ApiError(400 , "bad request")
+    }
+
+
+})
+
 
 export { post };

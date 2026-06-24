@@ -14,10 +14,8 @@ const userSchema = new mongoose.Schema({
   } , 
   // Array of ObjectIds pointing to other Users
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-
-  
-
-  
+  post:[{type:mongoose.Schema.Types.ObjectId , ref:"Post"}] , 
+  likes:[{type:mongoose.Schema.Types.ObjectId , ref:"Likes"}]
 }, {timestamps:true});
 
 userSchema.pre("save" , async function (next) {
