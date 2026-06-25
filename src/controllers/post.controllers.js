@@ -1,3 +1,6 @@
+
+import { text } from "express";
+import { Comment } from "../models/comment.models.js";
 import { Post } from "../models/post.models.js";
 import { User } from "../models/register.models.js";
 import { ApiError } from "../utils/apiError.utils.js";
@@ -87,15 +90,93 @@ const post = asyncHandler(async (req, res) => {
 });
 
 
-const likes = asyncHandler(async (req, res)=>{
-    const userId = req.user._id
-    const userIdCheck = User.findById(userId)
-    if(!userId && !userIdCheck){
-        throw new ApiError(400 , "bad request")
+
+const likes = asyncHandler(async (req, res) => {
+    try {
+        const verifyUser = await User.findById(req.user?._id); 
+        if (!verifyUser) {
+            throw new ApiError(400, 'Bad request: User not found');
+        }  
+    
+        const { postId } = req.body; 
+        
+        // 1. ADDED AWAIT HERE
+        const verifyPost = await Post.findById(postId);
+        if (!verifyPost) {
+            throw new ApiError(404, "Post doesn't exist"); // 404 is more accurate for "not found"
+        }
+    
+        // 2. Safely check if already liked (converting ObjectIds to strings for accurate comparison)
+        const hasLiked = verifyPost.likes.some(id => id.toString() === verifyUser._id.toString());
+        if (hasLiked) {
+            throw new ApiError(400, "You have already liked this post");
+        }
+    
+        // 3. Push user ID into the Post's likes array
+        await Post.findByIdAndUpdate(postId, {
+            $push: { likes: verifyUser._id }
+        });
+        
+        // 4. FIXED: Push the POST ID into the LIKING USER's array
+        await User.findByIdAndUpdate(verifyUser._id, {
+            $push: { likes: postId }
+        });
+
+        return res.status(200).json({
+            success: true, 
+            message: "Post liked successfully",
+            // Note: verifyPost here holds the old state from before the update. 
+            // If you want to return the updated post, fetch it again or manage it manually.
+            data: verifyPost 
+        }); 
+
+    } catch (error) {
+        throw new ApiError(error.statusCode || 500, error.message || "Internal Server Error"); 
     }
+});
 
 
-})
 
 
-export { post };
+const comments = asyncHandler(async (req, res) => {
+    try {
+        const verifyUser = await User.findById(req.user?._id); 
+        if (!verifyUser) {
+            throw new ApiError(400, 'Bad request: User not found');
+        }  
+    
+        const { postId, usercomment } = req.body; 
+        
+        // 1. Verify the post exists
+        const verifyPost = await Post.findById(postId);
+        if (!verifyPost) {
+            throw new ApiError(404, "Post doesn't exist");
+        }
+    
+        // 2. Create the new comment document
+        // Note: Added text field assuming your Comment schema will hold the actual string text
+        const newComment = await Comment.create({
+            sender: verifyUser._id, 
+            receiver: verifyPost.author, // The author of the post gets the comment
+            post: verifyPost._id,
+            text: usercomment // Make sure to add 'text' field to your commentSchema!
+        });
+        
+        // 3. FIXED: Push the NEW COMMENT's ID into the POST's Comment array
+        await Post.findByIdAndUpdate(postId, {
+            $push: { Comment: newComment._id } 
+        });
+
+        return res.status(200).json({
+            success: true, 
+            message: "Comment added successfully",
+            data: newComment 
+        }); 
+
+    } catch (error) {
+        throw new ApiError(error.statusCode || 500, error.message || "Internal Server Error"); 
+    }
+});
+
+
+export { post , likes , comments };

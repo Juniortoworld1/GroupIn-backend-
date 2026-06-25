@@ -7,7 +7,7 @@ import { logOut } from "../controllers/logout.controlles.js";
 import { verifyJWT } from "../middleware/auth.middleware.js";
 import { acceptFriendRequest, rejectFriendRequest, sendFriendRequest } from "../controllers/friendRequest.controller.js";
 import { message, readMessageSendByFriend, readMessageSendUs } from "../controllers/message.controller.js";
-import { post } from "../controllers/post.controllers.js";
+import { comments, likes, post } from "../controllers/post.controllers.js";
 
 
 const route = Router() ; 
@@ -82,6 +82,16 @@ route.route("/post").post(
         }
     ]) , 
     post
+)
+
+route.route("/post/like").post(
+    verifyJWT , 
+    likes
+)
+
+route.route("/post/comment").post(
+    verifyJWT , 
+    comments
 )
 
 export default route
