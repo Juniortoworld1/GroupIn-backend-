@@ -52,7 +52,7 @@ const post = asyncHandler(async (req, res) => {
             }
 
             return {
-                url: uploadedMedia.url,
+                url: uploadedMedia.secure_url,
                 type: mediaType
             };
         });
