@@ -7,56 +7,48 @@ import { ApiResponse } from '../utils/apiResponse.utils.js';
 import { generateAccessRefreshToken } from './tokens.js';
 import cookie from 'cookie-parser'
 
-const login = asyncHandler(async (req , res) =>{
-    const {username , password} = req.body ;
+const login = asyncHandler(async (req, res) => {
+    const { username, password } = req.body;
 
-    let isUser ; 
-
-    if (!username || !password){
-        throw new ApiError(400 , "Incorrect Credientials")
-    }
-    if(username.includes("@")){
-        isUser = await User.findOne({email:username})
-    }else{
-        isUser = await User.findOne({username})
+    if (!username || !password) {
+        throw new ApiError(400, "Incorrect Credentials");
     }
 
-    
-
-    if(!isUser) throw new ApiError(400, "Incorrect Credientials") ;
-
-    const isMatch = await isUser.isPasswordCorrect(password)
-
-    if(!isMatch) throw new ApiError(400 , "Incorrect Credientails") ;
-    console.log(isUser._id)
-
-    const {refreshTokens , accessTokens} = await generateAccessRefreshToken(isUser._id) ; 
-
-    let loggedIn ;
-    if(username.includes("@")){
-        loggedIn = await User.findOne({email:username})
-    }else{
-        loggedIn = await User.findOne({username})
+    // 1. Find user by either email or username
+    let isUser;
+    if (username.includes("@")) {
+        isUser = await User.findOne({ email: username });
+    } else {
+        isUser = await User.findOne({ username });
     }
 
-    
-    console.log(`\n\n\n\n${loggedIn._id.accessTokens}`)
-    const createUser = await User.findById(loggedIn._id).select("-password -refreshToken"); 
+    if (!isUser) throw new ApiError(400, "Incorrect Credentials");
+
+    // 2. Validate Password
+    const isMatch = await isUser.isPasswordCorrect(password);
+    if (!isMatch) throw new ApiError(400, "Incorrect Credentials");
+
+    // 3. Generate tokens
+    const { refreshTokens, accessTokens } = await generateAccessRefreshToken(isUser._id); 
+
+    // 4. CRITICAL STEP: Save the refresh token to the database!
+    isUser.refreshToken = refreshTokens; 
+    await isUser.save({ validateBeforeSave: false }); // Saves it directly without re-triggering validators
+
+    // 5. Fetch the user without password and refreshToken for the response
+    const loggedInUser = await User.findById(isUser._id).select("-password -refreshToken"); 
 
     const options = {
-        httpOnly: true , 
-        secure:true 
-    }  
+        httpOnly: true, 
+        secure: true 
+    };  
 
-    
-
-    return res.status(200).cookie("accessToken" , accessTokens , options)
-    .cookie("refreshToken" , refreshTokens , options).json(new ApiResponse(200 , {createUser} , "Success"))
-
-
-
-
-
-} )
+    // 6. Send response with cookies and JSON data
+    return res
+        .status(200)
+        .cookie("accessToken", accessTokens, options)
+        .cookie("refreshToken", refreshTokens, options)
+        .json(new ApiResponse(200, { user: loggedInUser, accessToken: accessTokens }, "Success"));
+});
 
 export {login}
